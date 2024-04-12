@@ -1,0 +1,63 @@
+Вот пример простого REST API на PHP с использованием встроенных функций PHP и без использования какого-либо фреймворка:
+
+php
+Copy code
+<?php
+
+// Определение списка пользователей
+$users = [
+    ['id' => 1, 'name' => 'John Doe', 'email' => 'john@example.com'],
+    ['id' => 2, 'name' => 'Jane Smith', 'email' => 'jane@example.com'],
+    ['id' => 3, 'name' => 'Alice Johnson', 'email' => 'alice@example.com']
+];
+
+// Определение маршрутов API
+$method = $_SERVER['REQUEST_METHOD'];
+$path = $_SERVER['PATH_INFO'] ?? '/';
+
+if ($path === '/users' && $method === 'GET') {
+    // Получение списка пользователей
+    header('Content-Type: application/json');
+    echo json_encode($users);
+} elseif (preg_match('/\/users\/(\d+)/', $path, $matches) && $method === 'GET') {
+    // Получение информации о пользователе по его ID
+    $userId = $matches[1];
+    $user = array_filter($users, function ($user) use ($userId) {
+        return $user['id'] == $userId;
+    });
+    if (!empty($user)) {
+        header('Content-Type: application/json');
+        echo json_encode($user[0]);
+    } else {
+        header('HTTP/1.1 404 Not Found');
+        echo json_encode(['error' => 'User not found']);
+    }
+} elseif ($path === '/users' && $method === 'POST') {
+    // Создание нового пользователя
+    $data = json_decode(file_get_contents('php://input'), true);
+    $newUser = [
+        'id' => count($users) + 1,
+        'name' => $data['name'] ?? '',
+        'email' => $data['email'] ?? ''
+    ];
+    $users[] = $newUser;
+    header('Content-Type: application/json');
+    echo json_encode($newUser);
+} else {
+    header('HTTP/1.1 404 Not Found');
+    echo json_encode(['error' => 'Endpoint not found']);
+}
+Этот код создает простое REST API для работы с пользователями. Он позволяет получать список пользователей, получать информацию о конкретном пользователе по его ID и создавать новых пользователей с помощью методов GET и POST HTTP.
+
+Пример использования API:
+
+Получение списка пользователей: GET /users
+Получение информации о пользователе с ID 1: GET /users/1
+Создание нового пользователя: POST /users, с телом запроса в формате JSON, например:
+json
+Copy code
+{
+    "name": "New User",
+    "email": "newuser@example.com"
+}
+Это простой пример для демонстрации основных концепций REST API на PHP. Обычно для более сложных и реальных приложений рекомендуется использовать фреймворки, такие как Laravel, Symfony или Lumen, которые предоставляют удобные инструменты для создания и обработки REST API.
