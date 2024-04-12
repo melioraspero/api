@@ -1,0 +1,104 @@
+import requests
+
+def get_current_weather(city):
+    url = f'https://api.gismeteo.net/v2/weather/current/?city={city}'
+    headers = {
+        'X-Gismeteo-Token': '56b30cb255.3443075',
+        'Accept-Encoding': 'gzip'
+    }
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        data = response.json()
+        weather_description = data['response']['ob']['weather']['desc']
+        temperature = data['response']['ob']['temperature']['C']
+        humidity = data['response']['ob']['humidity']['percent']
+        wind_speed = data['response']['ob']['wind']['speed']['mps']
+        
+        print(f'Current weather in {city}:')
+        print(f'Weather: {weather_description}')
+        print(f'Temperature: {temperature}°C')
+        print(f'Humidity: {humidity}%')
+        print(f'Wind Speed: {wind_speed} m/s')
+    else:
+        print('Failed to retrieve weather data.')
+
+# Поменяйте 'your_gismeteo_api_token' на ваш API токен от Gismeteo
+city = 'Moscow'
+
+get_current_weather(city)
+
+
+++++++++error---====token need logged in
+import requests
+
+def get_city_id(city_name, country_code, api_key):
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city_name},{country_code}&appid={api_key}'
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        city_id = data['id']
+        return city_id
+    else:
+        print('Failed to retrieve city data.')
+        return None
+
+def get_weather_forecast(city_id, api_key, lang='en'):
+    url = f'http://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&lang={lang}&units=metric'
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        forecasts = data['list']
+        
+        print(f'Weather forecast for {data["city"]["name"]}:')
+        for forecast in forecasts[:10]:
+            weather_description = forecast['weather'][0]['description']
+            temperature = forecast['main']['temp']
+            humidity = forecast['main']['humidity']
+            wind_speed = forecast['wind']['speed']
+            time = forecast['dt_txt']
+            
+            print(f'Date/Time: {time}, Weather: {weather_description}, Temperature: {temperature}°C, Humidity: {humidity}%, Wind Speed: {wind_speed} m/s')
+    else:
+        print('Failed to retrieve weather forecast data.')
+
+# Поменяйте 'your_api_key' на ваш API ключ от OpenWeatherMap
+api_key = 'your_api_key'
+
+# Создадим список городов с их координатами или идентификаторами
+cities = {
+    'Moscow': {'country_code': 'RU'},
+    'New York': {'country_code': 'US'},
+    'London': {'country_code': 'GB'}
+}
+
+# Выведем список городов для выбора
+print('Available cities:')
+for city in cities:
+    print(city)
+
+# Попросим пользователя выбрать город
+selected_city = input('Select city from the list: ')
+
+# Получим идентификатор выбранного города
+city_id = get_city_id(selected_city, cities[selected_city]['country_code'], api_key)
+
+if city_id:
+    # Получим прогноз погоды для выбранного города
+    get_weather_forecast(city_id, api_key)
+
+
+--------token in business page get
+
+import requests
+api_token ='56b30cb255.3443075'
+headers = {
+    'X-Gismeteo-Token': api_token,
+    'Accept-Encoding': 'gzip'
+}
+api_url_base = f'https://api.gismeteo.net/v2/weather/current/4368/?lang=ru&query='
+response = requests.get(api_url_base, headers=headers)
+print(response)
+
